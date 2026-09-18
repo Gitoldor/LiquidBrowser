@@ -1,55 +1,38 @@
 package com.liquidbrowser;
 
 import android.app.Activity;
-import android.app.DownloadManager;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.DownloadListener;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class MainActivity extends Activity {
 
     private WebView webView;
     private EditText addressBar;
 
-    private boolean incognitoMode = false;
-    private boolean desktopMode = false;
-
-    private final List<String> history =
-            new ArrayList<>();
-
-    private final Set<String> bookmarks =
-            new HashSet<>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        createBrowser();
+        buildLiquidInterface();
     }
 
-    private void createBrowser() {
+    private void buildLiquidInterface() {
+
+        /*
+         * ROOT
+         */
 
         LinearLayout root =
                 new LinearLayout(this);
@@ -59,12 +42,32 @@ public class MainActivity extends Activity {
         );
 
         root.setBackgroundColor(
-                Color.WHITE
+                Color.rgb(248, 248, 250)
         );
 
-        // =========================
-        // ADDRESS BAR
-        // =========================
+        /*
+         * TOP GLASS AREA
+         */
+
+        LinearLayout topGlass =
+                createGlassContainer();
+
+        LinearLayout.LayoutParams topParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        topParams.setMargins(
+                14,
+                18,
+                14,
+                10
+        );
+
+        /*
+         * ADDRESS BAR
+         */
 
         addressBar =
                 new EditText(this);
@@ -77,43 +80,74 @@ public class MainActivity extends Activity {
 
         addressBar.setTextSize(16);
 
-        addressBar.setPadding(
-                30,
-                20,
-                30,
-                20
+        addressBar.setTextColor(
+                Color.rgb(25, 25, 28)
         );
 
-        LinearLayout.LayoutParams
-                addressParams =
+        addressBar.setHintTextColor(
+                Color.rgb(120, 120, 125)
+        );
+
+        addressBar.setPadding(
+                22,
+                16,
+                22,
+                16
+        );
+
+        GradientDrawable addressBackground =
+                new GradientDrawable();
+
+        addressBackground.setColor(
+                Color.argb(
+                        175,
+                        255,
+                        255,
+                        255
+                )
+        );
+
+        addressBackground.setCornerRadius(
+                60
+        );
+
+        addressBackground.setStroke(
+                1,
+                Color.argb(
+                        90,
+                        255,
+                        255,
+                        255
+                )
+        );
+
+        addressBar.setBackground(
+                addressBackground
+        );
+
+        topGlass.addView(
+                addressBar,
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
-                );
-
-        addressParams.setMargins(
-                20,
-                20,
-                20,
-                10
+                )
         );
 
         root.addView(
-                addressBar,
-                addressParams
+                topGlass,
+                topParams
         );
 
-        // =========================
-        // WEBVIEW
-        // =========================
+        /*
+         * WEBVIEW
+         */
 
         webView =
                 new WebView(this);
 
         configureWebView();
 
-        LinearLayout.LayoutParams
-                webParams =
+        LinearLayout.LayoutParams webParams =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         0,
@@ -125,55 +159,85 @@ public class MainActivity extends Activity {
                 webParams
         );
 
-        // =========================
-        // NAVIGATION
-        // =========================
+        /*
+         * BOTTOM GLASS TOOLBAR
+         */
 
-        LinearLayout navigation =
-                new LinearLayout(this);
+        LinearLayout bottomGlass =
+                createGlassContainer();
 
-        navigation.setOrientation(
-                LinearLayout.HORIZONTAL
-        );
-
-        navigation.setGravity(
+        bottomGlass.setGravity(
                 Gravity.CENTER
         );
 
-        navigation.setPadding(
-                5,
-                5,
-                5,
-                10
+        LinearLayout.LayoutParams bottomParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        bottomParams.setMargins(
+                14,
+                8,
+                14,
+                16
         );
 
-        Button back =
-                createButton("‹");
+        /*
+         * BACK
+         */
 
-        Button forward =
-                createButton("›");
+        ImageButton back =
+                createGlassButton(
+                        "‹"
+                );
 
-        Button refresh =
-                createButton("↻");
+        /*
+         * FORWARD
+         */
 
-        Button menu =
-                createButton("•••");
+        ImageButton forward =
+                createGlassButton(
+                        "›"
+                );
 
-        navigation.addView(back);
-        navigation.addView(forward);
-        navigation.addView(refresh);
-        navigation.addView(menu);
+        /*
+         * TABS
+         */
 
-        root.addView(navigation);
+        ImageButton tabs =
+                createGlassButton(
+                        "▢"
+                );
 
-        // =========================
-        // BUTTONS
-        // =========================
+        /*
+         * MENU
+         */
+
+        ImageButton menu =
+                createGlassButton(
+                        "•••"
+                );
+
+        bottomGlass.addView(back);
+        bottomGlass.addView(forward);
+        bottomGlass.addView(tabs);
+        bottomGlass.addView(menu);
+
+        root.addView(
+                bottomGlass,
+                bottomParams
+        );
+
+        /*
+         * ACTIONS
+         */
 
         back.setOnClickListener(
                 v -> {
 
                     if (webView.canGoBack()) {
+
                         webView.goBack();
                     }
                 }
@@ -183,22 +247,29 @@ public class MainActivity extends Activity {
                 v -> {
 
                     if (webView.canGoForward()) {
+
                         webView.goForward();
                     }
                 }
         );
 
-        refresh.setOnClickListener(
-                v -> webView.reload()
+        tabs.setOnClickListener(
+                v -> {
+
+                    showMessage(
+                            "Tabs coming next"
+                    );
+                }
         );
 
         menu.setOnClickListener(
-                v -> showBrowserMenu()
-        );
+                v -> {
 
-        // =========================
-        // ADDRESS BAR
-        // =========================
+                    showMessage(
+                            "Browser menu"
+                    );
+                }
+        );
 
         addressBar.setOnEditorActionListener(
                 (v, actionId, event) -> {
@@ -213,9 +284,9 @@ public class MainActivity extends Activity {
                 }
         );
 
-        // =========================
-        // START PAGE
-        // =========================
+        /*
+         * START PAGE
+         */
 
         webView.loadUrl(
                 "https://www.google.com"
@@ -223,6 +294,12 @@ public class MainActivity extends Activity {
 
         setContentView(root);
     }
+
+    /*
+     * ============================
+     * WEBVIEW
+     * ============================
+     */
 
     private void configureWebView() {
 
@@ -241,33 +318,16 @@ public class MainActivity extends Activity {
                 true
         );
 
-        settings.setLoadWithOverviewMode(
-                true
-        );
-
         settings.setUseWideViewPort(
                 true
         );
 
-        settings.setBuiltInZoomControls(
-                false
-        );
-
-        settings.setDisplayZoomControls(
-                false
+        settings.setLoadWithOverviewMode(
+                true
         );
 
         webView.setWebViewClient(
                 new WebViewClient() {
-
-                    @Override
-                    public boolean shouldOverrideUrlLoading(
-                            WebView view,
-                            WebResourceRequest request
-                    ) {
-
-                        return false;
-                    }
 
                     @Override
                     public void onPageFinished(
@@ -283,13 +343,6 @@ public class MainActivity extends Activity {
                         addressBar.setText(
                                 url
                         );
-
-                        if (!incognitoMode
-                                && url != null
-                                && !url.isEmpty()) {
-
-                            history.add(url);
-                        }
                     }
                 }
         );
@@ -297,91 +350,13 @@ public class MainActivity extends Activity {
         webView.setWebChromeClient(
                 new WebChromeClient()
         );
-
-        // =========================
-        // DOWNLOADS
-        // =========================
-
-        webView.setDownloadListener(
-                new DownloadListener() {
-
-                    @Override
-                    public void onDownloadStart(
-                            String url,
-                            String userAgent,
-                            String contentDisposition,
-                            String mimeType,
-                            long contentLength
-                    ) {
-
-                        startDownload(
-                                url,
-                                userAgent,
-                                contentDisposition,
-                                mimeType
-                        );
-                    }
-                }
-        );
     }
 
-    private void startDownload(
-            String url,
-            String userAgent,
-            String contentDisposition,
-            String mimeType
-    ) {
-
-        try {
-
-            DownloadManager.Request request =
-                    new DownloadManager.Request(
-                            Uri.parse(url)
-                    );
-
-            request.setMimeType(
-                    mimeType
-            );
-
-            request.addRequestHeader(
-                    "User-Agent",
-                    userAgent
-            );
-
-            request.setNotificationVisibility(
-                    DownloadManager
-                            .Request
-                            .VISIBILITY_VISIBLE_NOTIFY_COMPLETED
-            );
-
-            request.setDestinationInExternalPublicDir(
-                    Environment.DIRECTORY_DOWNLOADS,
-                    "LiquidBrowserDownload"
-            );
-
-            DownloadManager manager =
-                    (DownloadManager)
-                            getSystemService(
-                                    DOWNLOAD_SERVICE
-                            );
-
-            manager.enqueue(request);
-
-            Toast.makeText(
-                    this,
-                    "Download started",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-        } catch (Exception e) {
-
-            Toast.makeText(
-                    this,
-                    "Download failed",
-                    Toast.LENGTH_SHORT
-            ).show();
-        }
-    }
+    /*
+     * ============================
+     * OPEN ADDRESS
+     * ============================
+     */
 
     private void openAddress(
             String input
@@ -398,11 +373,11 @@ public class MainActivity extends Activity {
 
         if (
                 input.startsWith(
-                        "http://"
+                        "https://"
                 )
                 ||
                 input.startsWith(
-                        "https://"
+                        "http://"
                 )
         ) {
 
@@ -423,366 +398,166 @@ public class MainActivity extends Activity {
             url =
                     "https://www.google.com/search?q="
                     +
-                    Uri.encode(
+                    android.net.Uri.encode(
                             input
                     );
         }
 
-        webView.loadUrl(url);
-    }
-
-    // =========================
-    // BROWSER MENU
-    // =========================
-
-    private void showBrowserMenu() {
-
-        LinearLayout menu =
-                new LinearLayout(this);
-
-        menu.setOrientation(
-                LinearLayout.VERTICAL
-        );
-
-        menu.setPadding(
-                40,
-                30,
-                40,
-                30
-        );
-
-        TextView title =
-                new TextView(this);
-
-        title.setText(
-                "Liquid Browser"
-        );
-
-        title.setTextSize(24);
-
-        menu.addView(title);
-
-        Button bookmark =
-                createMenuButton(
-                        "🔖 Bookmark"
-                );
-
-        Button historyButton =
-                createMenuButton(
-                        "🕘 History"
-                );
-
-        Button incognito =
-                createMenuButton(
-                        "🕵️ Incognito"
-                );
-
-        Button desktop =
-                createMenuButton(
-                        "🖥 Desktop Site"
-                );
-
-        Button find =
-                createMenuButton(
-                        "🔍 Find in Page"
-                );
-
-        Button share =
-                createMenuButton(
-                        "↗ Share"
-                );
-
-        menu.addView(bookmark);
-        menu.addView(historyButton);
-        menu.addView(incognito);
-        menu.addView(desktop);
-        menu.addView(find);
-        menu.addView(share);
-
-        setContentView(menu);
-
-        bookmark.setOnClickListener(
-                v -> {
-
-                    addBookmark();
-
-                    createBrowser();
-                }
-        );
-
-        historyButton.setOnClickListener(
-                v -> showHistory()
-        );
-
-        incognito.setOnClickListener(
-                v -> {
-
-                    incognitoMode =
-                            !incognitoMode;
-
-                    Toast.makeText(
-                            this,
-                            incognitoMode
-                                    ? "Incognito ON"
-                                    : "Incognito OFF",
-                            Toast.LENGTH_SHORT
-                    ).show();
-
-                    createBrowser();
-                }
-        );
-
-        desktop.setOnClickListener(
-                v -> {
-
-                    desktopMode =
-                            !desktopMode;
-
-                    applyDesktopMode();
-
-                    createBrowser();
-                }
-        );
-
-        find.setOnClickListener(
-                v -> showFindDialog()
-        );
-
-        share.setOnClickListener(
-                v -> shareCurrentPage()
-        );
-    }
-
-    private Button createMenuButton(
-            String text
-    ) {
-
-        Button button =
-                new Button(this);
-
-        button.setText(text);
-
-        button.setTextSize(16);
-
-        return button;
-    }
-
-    // =========================
-    // BOOKMARKS
-    // =========================
-
-    private void addBookmark() {
-
-        String url =
-                webView.getUrl();
-
-        if (url == null) {
-            return;
-        }
-
-        bookmarks.add(url);
-
-        Toast.makeText(
-                this,
-                "Bookmarked",
-                Toast.LENGTH_SHORT
-        ).show();
-    }
-
-    // =========================
-    // HISTORY
-    // =========================
-
-    private void showHistory() {
-
-        LinearLayout layout =
-                new LinearLayout(this);
-
-        layout.setOrientation(
-                LinearLayout.VERTICAL
-        );
-
-        layout.setPadding(
-                30,
-                40,
-                30,
-                30
-        );
-
-        TextView title =
-                new TextView(this);
-
-        title.setText(
-                "History"
-        );
-
-        title.setTextSize(26);
-
-        layout.addView(title);
-
-        for (String url : history) {
-
-            TextView item =
-                    new TextView(this);
-
-            item.setText(url);
-
-            item.setTextSize(15);
-
-            item.setPadding(
-                    0,
-                    20,
-                    0,
-                    20
-            );
-
-            layout.addView(item);
-        }
-
-        Button back =
-                createMenuButton(
-                        "Back to Browser"
-                );
-
-        layout.addView(back);
-
-        back.setOnClickListener(
-                v -> createBrowser()
-        );
-
-        setContentView(layout);
-    }
-
-    // =========================
-    // DESKTOP MODE
-    // =========================
-
-    private void applyDesktopMode() {
-
-        WebSettings settings =
-                webView.getSettings();
-
-        if (desktopMode) {
-
-            settings.setUserAgentString(
-                    "Mozilla/5.0 (X11; Linux x86_64) "
-                    +
-                    "AppleWebKit/537.36 "
-                    +
-                    "(KHTML, like Gecko) "
-                    +
-                    "Chrome/120 Safari/537.36"
-            );
-
-        } else {
-
-            settings.setUserAgentString(
-                    null
-            );
-        }
-    }
-
-    // =========================
-    // FIND IN PAGE
-    // =========================
-
-    private void showFindDialog() {
-
-        EditText input =
-                new EditText(this);
-
-        input.setHint(
-                "Find text"
-        );
-
-        setContentView(input);
-
-        input.requestFocus();
-
-        input.setOnEditorActionListener(
-                (v, actionId, event) -> {
-
-                    webView.findAllAsync(
-                            input.getText()
-                                    .toString()
-                    );
-
-                    return true;
-                }
-        );
-    }
-
-    // =========================
-    // SHARE
-    // =========================
-
-    private void shareCurrentPage() {
-
-        String url =
-                webView.getUrl();
-
-        if (url == null) {
-            return;
-        }
-
-        Intent share =
-                new Intent(
-                        Intent.ACTION_SEND
-                );
-
-        share.setType(
-                "text/plain"
-        );
-
-        share.putExtra(
-                Intent.EXTRA_TEXT,
+        webView.loadUrl(
                 url
         );
-
-        startActivity(
-                Intent.createChooser(
-                        share,
-                        "Share page"
-                )
-        );
     }
 
-    // =========================
-    // NAVIGATION BUTTON
-    // =========================
+    /*
+     * ============================
+     * GLASS CONTAINER
+     * ============================
+     */
 
-    private Button createButton(
-            String text
+    private LinearLayout createGlassContainer() {
+
+        LinearLayout container =
+                new LinearLayout(this);
+
+        container.setOrientation(
+                LinearLayout.HORIZONTAL
+        );
+
+        container.setGravity(
+                Gravity.CENTER
+        );
+
+        container.setPadding(
+                8,
+                8,
+                8,
+                8
+        );
+
+        GradientDrawable glass =
+                new GradientDrawable();
+
+        glass.setColor(
+                Color.argb(
+                        190,
+                        255,
+                        255,
+                        255
+                )
+        );
+
+        glass.setCornerRadius(
+                32
+        );
+
+        glass.setStroke(
+                1,
+                Color.argb(
+                        100,
+                        255,
+                        255,
+                        255
+                )
+        );
+
+        container.setBackground(
+                glass
+        );
+
+        container.setElevation(
+                10
+        );
+
+        return container;
+    }
+
+    /*
+     * ============================
+     * GLASS BUTTON
+     * ============================
+     */
+
+    private ImageButton createGlassButton(
+            String symbol
     ) {
 
-        Button button =
-                new Button(this);
+        ImageButton button =
+                new ImageButton(this);
 
-        button.setText(text);
+        button.setImageDrawable(
+                new android.graphics.drawable.ColorDrawable(
+                        Color.TRANSPARENT
+                )
+        );
 
-        button.setTextSize(20);
-
-        button.setTextColor(
-                Color.BLACK
+        button.setContentDescription(
+                symbol
         );
 
         button.setBackgroundColor(
                 Color.TRANSPARENT
         );
 
-        LinearLayout.LayoutParams params =
-                new LinearLayout.LayoutParams(
-                        0,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        1
-                );
+        button.setPadding(
+                20,
+                12,
+                20,
+                12
+        );
 
-        button.setLayoutParams(
-                params
+        TextView label =
+                new TextView(this);
+
+        label.setText(
+                symbol
+        );
+
+        label.setTextSize(
+                22
+        );
+
+        label.setTextColor(
+                Color.BLACK
+        );
+
+        /*
+         * Android ImageButton cannot directly
+         * contain TextView, so use a drawable
+         * generated from text.
+         *
+         * For now we use the accessibility
+         * description and simple native button.
+         */
+
+        button.setContentDescription(
+                symbol
         );
 
         return button;
     }
+
+    /*
+     * ============================
+     * MESSAGE
+     * ============================
+     */
+
+    private void showMessage(
+            String message
+    ) {
+
+        android.widget.Toast.makeText(
+                this,
+                message,
+                android.widget.Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    /*
+     * ============================
+     * ANDROID BACK
+     * ============================
+     */
 
     @Override
     public void onBackPressed() {
